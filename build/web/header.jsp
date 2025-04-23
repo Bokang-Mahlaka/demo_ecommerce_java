@@ -104,7 +104,7 @@
         <nav>
             <ul>
                 <li><a href="index.jsp">Home</a></li>
-                <li><a href="productCatalog.jsp">Shop</a></li>
+                <li><a href="products">Shop</a></li>               
                 <li><a href="cart.jsp">Cart</a></li>
                 <c:choose>
                     <c:when test="${not empty sessionScope.user}">

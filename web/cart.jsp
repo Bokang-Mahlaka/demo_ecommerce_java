@@ -11,7 +11,7 @@
     <c:choose>
         <c:when test="${empty sessionScope.cart}">
             <p>Your cart is empty.</p>
-            <a href="productCatalog.jsp">Continue Shopping</a>
+            <a href="products">Continue Shopping</a>
         </c:when>
         <c:otherwise>
             <form method="post" action="cart">
@@ -46,6 +46,7 @@
                 <button type="submit" name="action" value="update">Update Quantities</button>
                 <a href="checkout.jsp">Proceed to Checkout</a>
             </form>
+            <a href="products" style="display:block; margin-top: 20px;">Continue Shopping</a>
         </c:otherwise>
     </c:choose>
 </div>

@@ -1,15 +1,16 @@
 package controller;
 
+import dao.ProductDAO;
+import model.Product;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import model.Product;
-
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +19,14 @@ import java.util.List;
  */
 @WebServlet("/cart")
 public class CartServlet extends HttpServlet {
+
+    private ProductDAO productDAO;
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        productDAO = new ProductDAO();
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -46,9 +55,14 @@ public class CartServlet extends HttpServlet {
 
         switch (action) {
             case "add":
-                // For demo, create dummy product. In real app, fetch from DB.
-                Product productToAdd = new Product(productId, "Sample Product", "Type", "M", "Color", 49.99, 1, "USD", "images/sample.jpg", true);
-                cart.add(productToAdd);
+                try {
+                    Product productToAdd = productDAO.getProductById(productId);
+                    if (productToAdd != null) {
+                        cart.add(productToAdd);
+                    }
+                } catch (SQLException e) {
+                    throw new ServletException("Error fetching product for cart", e);
+                }
                 break;
             case "remove":
                 cart.removeIf(p -> p.getId() == productId);

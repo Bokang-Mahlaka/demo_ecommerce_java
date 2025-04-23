@@ -1,32 +1,39 @@
 package controller;
 
-import model.Product;
+import dao.ProductDAO;
+import java.sql.SQLException;
+import java.util.List;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
+import model.Product;
 
-
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
- * Servlet to handle product listing, filtering, and sorting.
+ * Servlet to handle product listing, filtering, sorting, and adding.
  */
 @WebServlet("/products")
+@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 1, // 1 MB
+                 maxFileSize = 1024 * 1024 * 10,      // 10 MB
+                 maxRequestSize = 1024 * 1024 * 15)   // 15 MB
 public class ProductServlet extends HttpServlet {
 
-    private List<Product> productList = new ArrayList<>();
+    private ProductDAO productDAO;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        productList.add(new Product(1, "Classic Shirt", "Shirt", "M", "Blue", 49.99, 100, "USD", "images/shirt1.jpg", true));
-        productList.add(new Product(2, "Slim Fit Trousers", "Trousers", "L", "Black", 79.99, 50, "USD", "images/trousers1.jpg", false));
-        
+        productDAO = new ProductDAO();
     }
 
     @Override
@@ -39,56 +46,78 @@ public class ProductServlet extends HttpServlet {
         String priceRange = request.getParameter("priceRange");
         String sortBy = request.getParameter("sortBy");
 
-        List<Product> filteredProducts = filterProducts(type, size, color, priceRange);
-        sortProducts(filteredProducts, sortBy);
-
-        request.setAttribute("products", filteredProducts);
-        request.getRequestDispatcher("/productCatalog.jsp").forward(request, response);
-    }
-
-    private List<Product> filterProducts(String type, String size, String color, String priceRange) {
-        List<Product> filtered = new ArrayList<>();
-        for (Product p : productList) {
-            if ((type == null || type.isEmpty() || p.getType().equalsIgnoreCase(type)) &&
-                (size == null || size.isEmpty() || p.getSize().equalsIgnoreCase(size)) &&
-                (color == null || color.isEmpty() || p.getColor().equalsIgnoreCase(color)) &&
-                (priceInRange(p.getPrice(), priceRange))) {
-                filtered.add(p);
-            }
-        }
-        return filtered;
-    }
-
-    private boolean priceInRange(double price, String priceRange) {
-        if (priceRange == null || priceRange.isEmpty()) {
-            return true;
-        }
-        String[] parts = priceRange.split("-");
-        if (parts.length != 2) return true;
         try {
-            double min = Double.parseDouble(parts[0]);
-            double max = Double.parseDouble(parts[1]);
-            return price >= min && price <= max;
-        } catch (NumberFormatException e) {
-            return true;
+            List<Product> products = productDAO.getAllProducts(); // For now, get all products
+
+            // TODO: Implement filtering and sorting in DAO or here
+
+            request.setAttribute("products", products);
+            request.getRequestDispatcher("/productCatalog.jsp").forward(request, response);
+        } catch (SQLException e) {
+            throw new ServletException("Error retrieving products", e);
         }
     }
 
-    private void sortProducts(List<Product> products, String sortBy) {
-        if (sortBy == null) return;
-        switch (sortBy) {
-            case "priceAsc":
-                products.sort((p1, p2) -> Double.compare(p1.getPrice(), p2.getPrice()));
-                break;
-            case "priceDesc":
-                products.sort((p1, p2) -> Double.compare(p2.getPrice(), p1.getPrice()));
-                break;
-            case "newest":
-               
-                products.sort((p1, p2) -> Integer.compare(p2.getId(), p1.getId()));
-                break;
-            default:
-                break;
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Handle adding new product
+
+        String name = request.getParameter("name");
+        String type = request.getParameter("type");
+        String size = request.getParameter("size");
+        String color = request.getParameter("color");
+        String priceStr = request.getParameter("price");
+        String stockStr = request.getParameter("stock");
+        String currency = request.getParameter("currency");
+        String ecoFriendlyStr = request.getParameter("ecoFriendly");
+
+        double price = 0;
+        int stock = 0;
+        boolean ecoFriendly = false;
+
+        try {
+            price = Double.parseDouble(priceStr);
+            stock = Integer.parseInt(stockStr);
+            ecoFriendly = Boolean.parseBoolean(ecoFriendlyStr);
+        } catch (NumberFormatException e) {
+            request.setAttribute("error", "Invalid number format for price or stock.");
+            request.getRequestDispatcher("/adminProductManagement.jsp").forward(request, response);
+            return;
+        }
+
+        // Handle file upload
+        Part filePart = request.getPart("imageFile");
+        String fileName = null;
+        String imageUrl = null;
+        if (filePart != null && filePart.getSize() > 0) {
+            fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+            String uploadPath = getServletContext().getRealPath("") + File.separator + "images" + File.separator + "products";
+            File uploadDir = new File(uploadPath);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+            File file = new File(uploadDir, fileName);
+            filePart.write(file.getAbsolutePath());
+            imageUrl = "images/products/" + fileName;
+        }
+
+        Product newProduct = new Product();
+        newProduct.setName(name);
+        newProduct.setType(type);
+        newProduct.setSize(size);
+        newProduct.setColor(color);
+        newProduct.setPrice(price);
+        newProduct.setStock(stock);
+        newProduct.setCurrency(currency);
+        newProduct.setImageUrl(imageUrl);
+        newProduct.setEcoFriendly(ecoFriendly);
+
+        try {
+            productDAO.addProduct(newProduct);
+            response.sendRedirect("adminProductManagement.jsp?success=true");
+        } catch (SQLException e) {
+            request.setAttribute("error", "Error adding product: " + e.getMessage());
+            request.getRequestDispatcher("/adminProductManagement.jsp").forward(request, response);
         }
     }
 }

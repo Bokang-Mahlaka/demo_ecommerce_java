@@ -28,8 +28,8 @@ public class UserDAO {
     }
 
     public User getUserByUsername(String username) throws SQLException {
-        String sql = "SELECT u.id, u.username, u.encrypted_password, u.email, r.role_name, u.currency_preference " +
-                     "FROM Users u JOIN Roles r ON u.role_id = r.id WHERE u.username = ?";
+        String sql = "SELECT u.id, u.username, u.encrypted_password, u.email, u.role_id, u.currency_preference " +
+                     "FROM Users u WHERE u.username = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
@@ -40,7 +40,7 @@ public class UserDAO {
                     user.setUsername(rs.getString("username"));
                     user.setEncryptedPassword(rs.getString("encrypted_password"));
                     user.setEmail(rs.getString("email"));
-                    user.setRoleId(rs.getInt("id"));
+                    user.setRoleId(rs.getInt("role_id"));
                     user.setCurrencyPreference(rs.getString("currency_preference"));
                     return user;
                 }

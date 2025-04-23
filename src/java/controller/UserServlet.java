@@ -84,7 +84,11 @@ public class UserServlet extends HttpServlet {
             if (user != null && BCrypt.checkpw(password, user.getEncryptedPassword())) {
                 HttpSession session = request.getSession();
                 session.setAttribute("user", user);
-                response.sendRedirect("index.jsp");
+                if (user.getRoleId() == 1) {
+                    response.sendRedirect("adminDashboard.jsp");
+                } else {
+                    response.sendRedirect("index.jsp");
+                }
             } else {
                 request.setAttribute("error", "Invalid username or password.");
                 request.getRequestDispatcher("login.jsp").forward(request, response);

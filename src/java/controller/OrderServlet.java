@@ -1,17 +1,19 @@
 package controller;
 
+import dao.ProductDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import model.Invoice;
 import model.Order;
 import model.OrderItem;
-import model.Invoice;
-
+import model.Product;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -22,43 +24,65 @@ import java.util.List;
 @WebServlet("/order")
 public class OrderServlet extends HttpServlet {
 
-    // For demonstration, using in-memory order list. In real app, connect to DB.
-    private List<Order> orders = new ArrayList<>();
+    private ProductDAO productDAO;
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        productDAO = new ProductDAO();
+    }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Process order placement
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
             response.sendRedirect("login.jsp");
             return;
         }
 
-        // For demo, assume order details come from request parameters or session cart
-        // Here, we create a dummy order for demonstration
         int userId = ((model.User) session.getAttribute("user")).getId();
 
-        List<OrderItem> orderItems = new ArrayList<>();
-        // In real app, populate orderItems from cart/session/request
-        // Example dummy item:
-orderItems.add(new OrderItem(0, 0, 1, 2, 49.99));
+        String productIdStr = request.getParameter("productId");
+        String quantityStr = request.getParameter("quantity");
+        int productId = 0;
+        int quantity = 1;
 
-        double totalPrice = 0;
-        for (OrderItem item : orderItems) {
-            totalPrice += item.getPrice() * item.getQuantity();
+        try {
+            productId = Integer.parseInt(productIdStr);
+            quantity = Integer.parseInt(quantityStr);
+        } catch (NumberFormatException e) {
+            request.setAttribute("error", "Invalid product ID or quantity.");
+            request.getRequestDispatcher("/productCatalog.jsp").forward(request, response);
+            return;
         }
 
-        Order newOrder = new Order(orders.size() + 1, userId, orderItems, totalPrice, new Date());
-        orders.add(newOrder);
+        try {
+            Product product = productDAO.getProductById(productId);
+            if (product == null) {
+                request.setAttribute("error", "Product not found.");
+                request.getRequestDispatcher("/productCatalog.jsp").forward(request, response);
+                return;
+            }
 
-        // Generate invoice
-        Invoice invoice = new Invoice(orders.size(), newOrder.getOrderId(), userId, orderItems, totalPrice, new Date(), "USD");
+            List<OrderItem> orderItems = new ArrayList<>();
+            OrderItem orderItem = new OrderItem();
+            orderItem.setProductId(product.getId());
+            orderItem.setQuantity(quantity);
+            orderItem.setPrice(product.getPrice());
+            orderItems.add(orderItem);
 
-        // TODO: Send invoice via email (requires email utility integration)
+            double totalPrice = product.getPrice() * quantity;
 
-        // Set order and invoice in request and forward to confirmation page
-        request.setAttribute("order", newOrder);
-        request.setAttribute("invoice", invoice);
-        request.getRequestDispatcher("/orderConfirmation.jsp").forward(request, response);
+            Order newOrder = new Order(0, userId, orderItems, totalPrice, new Date());
+
+            Invoice invoice = new Invoice(0, 0, userId, orderItems, totalPrice, new Date(), product.getCurrency());
+
+            request.setAttribute("order", newOrder);
+            request.setAttribute("invoice", invoice);
+            request.getRequestDispatcher("/orderConfirmation.jsp").forward(request, response);
+
+        } catch (SQLException e) {
+            throw new ServletException("Error processing order", e);
+        }
     }
 }
