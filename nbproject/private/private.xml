@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/C:/Users/User/Documents/NetBeansProjects/TrendSphere’s%20online%20platform/src/java/model/Product.java</file>
+            <file>file:/C:/Users/User/Documents/NetBeansProjects/TrendSphere’s%20online%20platform/src/java/model/User.java</file>
+            <file>file:/C:/Users/User/Documents/NetBeansProjects/TrendSphere’s%20online%20platform/web/register.jsp</file>
+            <file>file:/C:/Users/User/Documents/NetBeansProjects/TrendSphere’s%20online%20platform/src/java/utils/DBConnection.java</file>
+            <file>file:/C:/Users/User/Documents/NetBeansProjects/TrendSphere’s%20online%20platform/src/java/model/Invoice.java</file>
+            <file>file:/C:/Users/User/Documents/NetBeansProjects/TrendSphere’s%20online%20platform/src/java/controller/OrderServlet.java</file>
+            <file>file:/C:/Users/User/Documents/NetBeansProjects/TrendSphere’s%20online%20platform/src/java/controller/CartServlet.java</file>
+            <file>file:/C:/Users/User/Documents/NetBeansProjects/TrendSphere’s%20online%20platform/web/header.jsp</file>
+            <file>file:/C:/Users/User/Documents/NetBeansProjects/TrendSphere’s%20online%20platform/src/java/model/Order.java</file>
+            <file>file:/C:/Users/User/Documents/NetBeansProjects/TrendSphere’s%20online%20platform/src/java/dao/CurrencyDAO.java</file>
+            <file>file:/C:/Users/User/Documents/NetBeansProjects/TrendSphere’s%20online%20platform/src/java/dao/UserDAO.java</file>
+            <file>file:/C:/Users/User/Documents/NetBeansProjects/TrendSphere’s%20online%20platform/src/java/dao/OrderDAO.java</file>
+            <file>file:/C:/Users/User/Documents/NetBeansProjects/TrendSphere’s%20online%20platform/src/java/controller/ProductServlet.java</file>
+            <file>file:/C:/Users/User/Documents/NetBeansProjects/TrendSphere’s%20online%20platform/web/login.jsp</file>
+            <file>file:/C:/Users/User/Documents/NetBeansProjects/TrendSphere’s%20online%20platform/src/java/controller/InventoryServlet.java</file>
+            <file>file:/C:/Users/User/Documents/NetBeansProjects/TrendSphere’s%20online%20platform/web/index.jsp</file>
+            <file>file:/C:/Users/User/Documents/NetBeansProjects/TrendSphere’s%20online%20platform/web/productCatalog.jsp</file>
+            <file>file:/C:/Users/User/Documents/NetBeansProjects/TrendSphere’s%20online%20platform/src/java/controller/FilterServlet.java</file>
+            <file>file:/C:/Users/User/Documents/NetBeansProjects/TrendSphere’s%20online%20platform/src/java/controller/UserServlet.java</file>
+            <file>file:/C:/Users/User/Documents/NetBeansProjects/TrendSphere’s%20online%20platform/src/java/utils/BCrypt.java</file>
+            <file>file:/C:/Users/User/Documents/NetBeansProjects/TrendSphere’s%20online%20platform/src/java/model/Inventory.java</file>
+            <file>file:/C:/Users/User/Documents/NetBeansProjects/TrendSphere’s%20online%20platform/src/java/model/OrderItem.java</file>
+            <file>file:/C:/Users/User/Documents/NetBeansProjects/TrendSphere’s%20online%20platform/src/java/model/Currency.java</file>
+            <file>file:/C:/Users/User/Documents/NetBeansProjects/TrendSphere’s%20online%20platform/src/java/controller/CurrencyServlet.java</file>
+        </group>
+    </open-files>
+</project-private>
