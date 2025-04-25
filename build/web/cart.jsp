@@ -21,13 +21,16 @@
                             <th>Product</th>
                             <th>Size</th>
                             <th>Color</th>
-                            <th>Price</th>
+                            <th>Unit Price</th>
                             <th>Quantity</th>
+                            <th>Total Price</th>
                             <th>Remove</th>
                         </tr>
                     </thead>
                     <tbody>
+                        <c:set var="cartTotal" value="0" />
                         <c:forEach var="product" items="${sessionScope.cart}">
+                            <c:set var="itemTotal" value="${product.price * product.stock}" />
                             <tr>
                                 <td>${product.name}</td>
                                 <td>${product.size}</td>
@@ -36,13 +39,16 @@
                                 <td>
                                     <input type="number" name="quantity_${product.id}" value="${product.stock}" min="1" />
                                 </td>
+                                <td>${product.currency} ${itemTotal}</td>
                                 <td>
                                     <button type="submit" name="action" value="remove" formaction="cart?productId=${product.id}">Remove</button>
                                 </td>
                             </tr>
+                            <c:set var="cartTotal" value="${cartTotal + itemTotal}" />
                         </c:forEach>
                     </tbody>
                 </table>
+                <h3>Total: ${sessionScope.cart[0].currency} ${cartTotal}</h3>
                 <button type="submit" name="action" value="update">Update Quantities</button>
                 <a href="checkout.jsp">Proceed to Checkout</a>
             </form>

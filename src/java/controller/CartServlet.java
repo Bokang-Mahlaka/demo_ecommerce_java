@@ -47,11 +47,10 @@ public class CartServlet extends HttpServlet {
 
         String action = request.getParameter("action");
         String productIdStr = request.getParameter("productId");
-        if (productIdStr == null) {
-            response.sendRedirect("cart.jsp");
-            return;
+        int productId = -1;
+        if (productIdStr != null) {
+            productId = Integer.parseInt(productIdStr);
         }
-        int productId = Integer.parseInt(productIdStr);
 
         switch (action) {
             case "add":
@@ -65,21 +64,26 @@ public class CartServlet extends HttpServlet {
                 }
                 break;
             case "remove":
-                cart.removeIf(p -> p.getId() == productId);
+                // Use traditional for loop to avoid lambda capturing productId
+                for (int i = 0; i < cart.size(); i++) {
+                    if (cart.get(i).getId() == productId) {
+                        cart.remove(i);
+                        break;
+                    }
+                }
                 break;
             case "update":
-                String quantityStr = request.getParameter("quantity");
-                int quantity = 1;
-                try {
-                    quantity = Integer.parseInt(quantityStr);
-                } catch (NumberFormatException e) {
-                    quantity = 1;
-                }
                 for (Product p : cart) {
-                    if (p.getId() == productId) {
-                        // For demo, update stock as quantity
-                        p.setStock(quantity);
-                        break;
+                    String quantityStr = request.getParameter("quantity_" + p.getId());
+                    if (quantityStr != null) {
+                        try {
+                            int quantity = Integer.parseInt(quantityStr);
+                            if (quantity > 0) {
+                                p.setStock(quantity);
+                            }
+                        } catch (NumberFormatException e) {
+                            // ignore invalid input, keep old quantity
+                        }
                     }
                 }
                 break;

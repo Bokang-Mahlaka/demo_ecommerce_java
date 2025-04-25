@@ -94,5 +94,43 @@ public class OrderDAO {
         return order;
     }
 
-    // Additional methods like getAllOrders, updateOrder, deleteOrder can be added similarly
+    public List<Order> getAllOrders() throws SQLException {
+        List<Order> orders = new ArrayList<>();
+        String sql = "SELECT * FROM Orders ORDER BY order_date DESC";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                Order order = new Order();
+                order.setOrderId(rs.getInt("order_id"));
+                order.setUserId(rs.getInt("user_id"));
+                order.setTotalPrice(rs.getDouble("total_price"));
+                order.setOrderDate(rs.getTimestamp("order_date"));
+                // Optionally, fetch order items if needed
+                orders.add(order);
+            }
+        }
+        return orders;
+    }
+
+    public List<OrderItem> getOrderItemsByOrderId(int orderId) throws SQLException {
+        List<OrderItem> items = new ArrayList<>();
+        String sql = "SELECT * FROM OrderItems WHERE order_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, orderId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    OrderItem item = new OrderItem();
+                    item.setOrderItemId(rs.getInt("order_item_id"));
+                    item.setOrderId(rs.getInt("order_id"));
+                    item.setProductId(rs.getInt("product_id"));
+                    item.setQuantity(rs.getInt("quantity"));
+                    item.setPrice(rs.getDouble("price"));
+                    items.add(item);
+                }
+            }
+        }
+        return items;
+    }
 }
